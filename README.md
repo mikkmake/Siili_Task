@@ -14,7 +14,7 @@ display logging data in QML
 
 ## Progress log
 
-#14.6.
+# 14.6.
 
 Sat down with pen and paper to think through how the program should flow. Created this repository. Implemented choice between graphical and text based use.
 
