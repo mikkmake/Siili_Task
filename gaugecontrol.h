@@ -6,31 +6,43 @@
 #include <QDebug>
 #include <iostream>
 #include <cmath>
+#include <string>
 
 class GaugeControl : public QObject
 {
   Q_OBJECT
-  Q_PROPERTY(int speed READ speed NOTIFY speedChanged)
-  Q_PROPERTY(QVariantList speedArray READ speedArray NOTIFY speedArrayChanged)
-  Q_PROPERTY(qreal averageSpeed READ averageSpeed NOTIFY averageSpeedChanged)
+  // Named value, not speed, because this is generic gauge control
+  Q_PROPERTY(int value READ value NOTIFY valueChanged)
+  Q_PROPERTY(QVariantList valueArray READ valueArray NOTIFY valueArrayChanged)
+  Q_PROPERTY(qreal averageValue READ averageValue NOTIFY averageValueChanged)
   Q_PROPERTY(qreal distance READ distance NOTIFY distanceChanged)
+  Q_PROPERTY(int maxValue WRITE maxValue)
   QML_NAMED_ELEMENT(GaugeControl)
 public:
+  // Constructor without input-stream: simulates gauge-data
   explicit GaugeControl(QObject *parent = nullptr);
-  explicit GaugeControl(std::istream *stream);
 
   ~GaugeControl();
 
-  int speed() const;
-  const QVariantList &speedArray() const;
-  qreal averageSpeed() const;
+  int value() const;
+  const QVariantList &valueArray() const;
+  qreal averageValue() const;
   qreal distance() const;
+
+  void maxValue(int newMaxValue);
+  Q_INVOKABLE void startSimulation();
+
+  Q_INVOKABLE void setInputStream(std::istream &inputStream);
+
+  virtual void componentComplete() {
+    qDebug() << "component complete called";
+  }
 
 signals:
 
-  void speedChanged(int);
-  void speedArrayChanged();
-  void averageSpeedChanged();
+  void valueChanged(int);
+  void valueArrayChanged();
+  void averageValueChanged();
   void distanceChanged();
 
 public slots:
@@ -38,19 +50,20 @@ public slots:
   void writeLogFile();
 
 private:
-  int m_speed;
+  int m_value;
   std::istream *m_inputStream;
   std::size_t m_time;
-  QTimer *m_speedTimer;
+  QTimer *m_valueTimer;
 
   // Roughly copied from material
-  void calculate_speed();
+  void calculate_value();
   auto to_radians(double degrees);
 
   void readStream();
-  QVariantList m_speedArray;
+  QVariantList m_valueArray;
   qreal m_averageSpeed;
   qreal m_distance;
+  int m_maxValue;
 };
 
 #endif // SPEEDGAUGECONTROL_H

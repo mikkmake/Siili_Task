@@ -1,17 +1,17 @@
 #include "gaugecontrol.h"
 
 GaugeControl::GaugeControl(QObject *parent)
-  : QObject{parent}, m_time(0), m_speed(0), m_inputStream(nullptr)
+  : QObject{parent}, m_time(0), m_value(0), m_inputStream(nullptr), m_maxValue(0)
 {
   qDebug() << "Control constructing without stream";
-  m_speedTimer = new QTimer(this);
-  m_speedTimer->setInterval(50);
-  // If no input stream given, generate speed ourselves
-  QObject::connect(m_speedTimer, &QTimer::timeout,[this]() {
-      m_time++;
-      calculate_speed();
-    });
-  m_speedTimer->start();
+  qDebug() << qApp->arguments();
+  for (QString arg : qApp->arguments()) {
+    if (arg == "-s" || arg == "--simulated") {
+      startSimulation();
+      return;
+    }
+  }
+  setInputStream(std::cin);
 }
 
 GaugeControl::~GaugeControl()
@@ -27,33 +27,32 @@ auto GaugeControl::to_radians(double degrees) {
   return degrees/180.0 * M_PI;
 }
 
-void GaugeControl::calculate_speed() {
+void GaugeControl::calculate_value() {
   auto t = to_radians(m_time);
-  m_speed = static_cast<int>(abs(sin(t)+sin(4*t)/4+2*sin(t/16))/3 * 190.0);
-  qDebug() << "emitting speedchanged";
-  emit speedChanged(m_speed);
+  m_value = static_cast<int>(abs(sin(t)+sin(4*t)/4+2*sin(t/16))/3 * m_maxValue);
+  emit valueChanged(m_value);
 }
 
 void GaugeControl::readStream() {
-  // First check if there is anything
+  // First check if there is anything to read
   std::string buffer;
   if (getline(*m_inputStream, buffer)) {
-      m_speed = std::stoi(buffer);
-      emit speedChanged(m_speed);
+      m_value = std::stoi(buffer);
+      emit valueChanged(m_value);
     }
 }
 
-int GaugeControl::speed() const
+int GaugeControl::value() const
 {
-  return m_speed;
+  return m_value;
 }
 
-const QVariantList &GaugeControl::speedArray() const
+const QVariantList &GaugeControl::valueArray() const
 {
-  return m_speedArray;
+  return m_valueArray;
 }
 
-qreal GaugeControl::averageSpeed() const
+qreal GaugeControl::averageValue() const
 {
   return m_averageSpeed;
 }
@@ -61,4 +60,33 @@ qreal GaugeControl::averageSpeed() const
 qreal GaugeControl::distance() const
 {
   return m_distance;
+}
+
+void GaugeControl::maxValue(int newMaxValue)
+{
+  m_maxValue = newMaxValue;
+}
+
+void GaugeControl::startSimulation()
+{
+  m_valueTimer = new QTimer(this);
+  m_valueTimer->setInterval(50);
+  // If no input stream given, generate value ourselves
+  QObject::connect(m_valueTimer, &QTimer::timeout,[this]() {
+      m_time++;
+      calculate_value();
+    });
+  m_valueTimer->start();
+}
+
+void GaugeControl::setInputStream(std::istream &inputStream)
+{
+  m_inputStream = &inputStream;
+  m_valueTimer = new QTimer(this);
+  m_valueTimer->setInterval(50);
+  QObject::connect(m_valueTimer, &QTimer::timeout,
+    [this]() {
+      readStream();
+    });
+  m_valueTimer->start();
 }

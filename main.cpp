@@ -13,6 +13,16 @@ QCoreApplication* createApplication(int &argc, char *argv[]) {
   return new QCoreApplication(argc, argv);
 }
 
+// Check if we only want to simulate gauge-data
+bool simulationSwitch(int &argc, char *argv[]) {
+  for (int i = 1; i < argc; i++) {
+    if (strcmp(argv[i], "-s") == 0 || strcmp(argv[i], "--simulated") == 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
 int main(int argc, char *argv[])
 {
   QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
@@ -30,7 +40,7 @@ int main(int argc, char *argv[])
       if (!obj && url == objUrl)
         QCoreApplication::exit(-1);
     }, Qt::QueuedConnection);
-    // Register custom GaugeControl as QML-type
+    // Register GaugeControl as QML-type
     qmlRegisterType<GaugeControl>("GaugeControl", 1, 0, "GaugeControl");
 
     engine.load(url);
@@ -38,10 +48,12 @@ int main(int argc, char *argv[])
   } else {
     qDebug() << "Non-graphical init";
     // Initiate GaugeControl
-    GaugeControl speedControl;
-    QObject::connect(&speedControl, &GaugeControl::speedChanged,
-      [](int speed) {
-        std::cout << speed << std::endl;
+    GaugeControl speedControl(app.get());
+    speedControl.maxValue(190);
+    // Push received values to stdout
+    QObject::connect(&speedControl, &GaugeControl::valueChanged,
+      [](int value) {
+        std::cout << value << std::endl;
       });
     return app->exec();
   }

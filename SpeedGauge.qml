@@ -15,13 +15,20 @@ Image {
     id: needle
     source: "assets/Needle.png"
     x: 24; y: 24
-    rotation: 1.5 * gaugeControl.speed
+    rotation: -45 + 1.5 * speedControl.value // Begin from 0, then match speed-value
     BoundaryRule on rotation {
       minimum: -45
       maximum: 240
     }
+    PropertyAnimation {
+      target: needle
+      property: "rotation"
+      duration: 50
+      running: true
+    }
     GaugeControl {
-      id: gaugeControl
+      id: speedControl
+      maxValue: 190
     }
   }
 }
