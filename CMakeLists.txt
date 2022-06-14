@@ -7,14 +7,29 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 6.2 COMPONENTS Quick REQUIRED)
 
+set(SOURCES
+  main.cpp
+  gaugecontrol.cpp
+)
+
+set(HEADERS
+  gaugecontrol.h
+)
 qt_add_executable(appSiili_Task
-    main.cpp
+  ${SOURCES}
+  ${HEADERS}
 )
 
 qt_add_qml_module(appSiili_Task
     URI Siili_Task
     VERSION 1.0
-    QML_FILES main.qml 
+    QML_FILES
+      main.qml
+      SpeedGauge.qml
+    RESOURCES
+      assets/svgBackgroundCircle.png
+      assets/Speed\ texture.png
+      assets/Needle.png
 )
 
 set_target_properties(appSiili_Task PROPERTIES
