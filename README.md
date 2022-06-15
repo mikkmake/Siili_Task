@@ -1,6 +1,6 @@
 # Junior task for Siili_Auto 2022
 
-[Screenshot of the application](screenshots/Screenshot1506.png)
+<img src="screenshots/Screenshot1506.png"></img>
 
 ## Notes on each task
 
