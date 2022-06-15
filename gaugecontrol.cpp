@@ -11,6 +11,9 @@ GaugeControl::GaugeControl(QObject *parent)
       return;
     }
   }
+  // Default to stdin
+  m_inputStream = new QTextStream(stdin);
+  setInputStream(*m_inputStream);
 }
 
 GaugeControl::~GaugeControl()
@@ -85,7 +88,6 @@ void GaugeControl::startSimulation()
 void GaugeControl::setInputStream(QTextStream &inputStream)
 {
   m_inputStream = &inputStream;
-  emit inputStreamSet();
   m_valueTimer = new QTimer(this);
   m_valueTimer->setInterval(50);
   QObject::connect(m_valueTimer, &QTimer::timeout,
