@@ -11,6 +11,30 @@ Item {
     source: "assets/svgBackgroundCircle.png"
 
     Image {
+      id: topCircle
+      source: "assets/TopCircle.png"
+      anchors.centerIn: parent
+      Text {
+        id: currentSpeed
+        text: speedControl.value
+        color: "white"
+        font.pixelSize: 32
+        anchors.centerIn: parent
+      }
+      Text {
+        id: distance
+        text: (speedControl.distance / 1000).toFixed(0) + " km"
+        color: "white"
+        font.pixelSize: 16
+        anchors {
+          horizontalCenter: parent.horizontalCenter
+          bottom: parent.bottom
+          bottomMargin: 50
+        }
+
+      }
+    }
+    Image {
       id: speedNumbers
       source: "assets/Speed\ texture.png"
       anchors.centerIn: parent
@@ -39,8 +63,9 @@ Item {
   // Statistics histogram
   Window {
     id: statisticsWindow
-    width: speedHistogram.width
-    height: speedHistogram.height
+    minimumWidth: speedHistogram.width
+    minimumHeight: speedHistogram.height
+    title: "SpeedGauge Histogram"
     visible: true
     Histogram {
       id: speedHistogram

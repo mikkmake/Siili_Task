@@ -1,16 +1,21 @@
 # Junior task for Siili_Auto 2022
 
+[Screenshot of the application](screenshots/Screenshot1506.png)
+
 ## Notes on each task
 
 ### 1 [QML]: The gauge graphics
 
+TopCircle.png shading was cropped awkwardly, so removed it altogether.
+
 ### 2 [QML,C++]: Velocity Control
 
 Done as QML_NAMED_ELEMENT(GaugeControl). In principle should be able to control any gauge.
+The provided simulation-model would produce values larger than "max_speed" as the function limit really is not 1 but 3.25/3.0. Tried to work around it, but currently high-end speeds are scarcely generated.
 
 ### 3 [C++]: External sources
 
-GaugeControl input defaults to stdin -> allows piping and streaming a text file. E.g. *./speed_simulation | ./appSiili_Task* or *./appSiili_Task << speed_data.txt*. Implemented simple switch -s or --simulated to use internally simulated data. As a consequence you can have simulation and input-reading running simultaneously. Treating as a feature, not a bug: user is responsible.
+GaugeControl input defaults to stdin -> allows piping and streaming a text file. E.g. *"./speed_simulation | ./appSiili_Task"* or *"./appSiili_Task << speed_data.txt"*. Implemented simple switch -s or --simulated to use internally simulated data. As a consequence you can have simulation and input-reading running simultaneously. Treating as a feature, not a bug: user is responsible.
 
 ### 4 [C++]: Run in GUI or terminal
 
@@ -29,7 +34,7 @@ Connected log file writing to SIGNAL(qApp::aboutToQuit). For a console applicati
 
 ### 7 [QML,C++]: Display live statistics
 
-Made a DIY histogram as I couldn't find examples, and as BarSeries lacks options like spacing. Every speed is represented by it's own column, as specified in the task pdf. 
+Made a DIY histogram as I couldn't find examples, and as I was afraid BarSeries would not suffice (lacking the spacing option for example). Every speed is represented by it's own column, as specified in the task pdf.
 
 ## To-Do
 

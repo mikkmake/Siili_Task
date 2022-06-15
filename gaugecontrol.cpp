@@ -51,7 +51,7 @@ void GaugeControl::calculate_value() {
   auto t = to_radians(m_time);
   // I thought "max_value" would be the maximum, but sometimes output larger that max
   // Actual limit is 3.25 / 3.0 = 1.083....
-  m_value = static_cast<int>(abs(sin(t)+sin(4*t)/4+2*sin(t/16))/3 * m_maxValue / (3.25 / 3.0));
+  m_value = static_cast<int>(std::floor((abs(sin(t)+sin(4*t)/4+2*sin(t/16))/3 * m_maxValue / (3.25 / 3.0)) + 0.5));
   emit valueChanged(m_value);
 }
 

@@ -31,6 +31,7 @@ qt_add_qml_module(appSiili_Task
       assets/svgBackgroundCircle.png
       assets/Speed\ texture.png
       assets/Needle.png
+      assets/TopCircle.png
 )
 
 set_target_properties(appSiili_Task PROPERTIES

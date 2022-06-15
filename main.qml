@@ -2,11 +2,12 @@ import QtQuick 2.15
 import QtQuick.Window 2.15
 
 Window {
-  width: 640
-  height: 480
+  minimumWidth: speedGauge.width
+  minimumHeight: speedGauge.height
   visible: true
   title: qsTr("SpeedGauge Test")
   SpeedGauge {
+    id: speedGauge
     anchors.top: parent.top
     anchors.horizontalCenter: parent.horizontalCenter
   }
