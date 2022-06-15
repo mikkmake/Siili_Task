@@ -19,7 +19,6 @@ class GaugeControl : public QObject
   Q_PROPERTY(int maxValue WRITE maxValue)
   QML_NAMED_ELEMENT(GaugeControl)
 public:
-  // Constructor without input-stream: simulates gauge-data
   explicit GaugeControl(QObject *parent = nullptr);
 
   ~GaugeControl();
@@ -30,13 +29,9 @@ public:
   qreal distance() const;
 
   void maxValue(int newMaxValue);
-  Q_INVOKABLE void startSimulation();
+  void startSimulation();
 
-  Q_INVOKABLE void setInputStream(std::istream &inputStream);
-
-  virtual void componentComplete() {
-    qDebug() << "component complete called";
-  }
+  void setInputStream(QTextStream &inputStream);
 
 signals:
 
@@ -51,7 +46,7 @@ public slots:
 
 private:
   int m_value;
-  std::istream *m_inputStream;
+  QTextStream *m_inputStream;
   std::size_t m_time;
   QTimer *m_valueTimer;
 

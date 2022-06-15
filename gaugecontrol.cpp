@@ -1,7 +1,7 @@
 #include "gaugecontrol.h"
 
 GaugeControl::GaugeControl(QObject *parent)
-  : QObject{parent}, m_time(0), m_value(0), m_inputStream(nullptr), m_maxValue(0)
+  : QObject{parent}, m_time(0), m_inputStream(NULL), m_value(0), m_maxValue(0)
 {
   // Connect log-writing to when parent terminating
   QObject::connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(writeLogFile()));
@@ -11,7 +11,6 @@ GaugeControl::GaugeControl(QObject *parent)
       return;
     }
   }
-  setInputStream(std::cin);
 }
 
 GaugeControl::~GaugeControl()
@@ -35,10 +34,10 @@ void GaugeControl::calculate_value() {
 
 void GaugeControl::readStream() {
   // First check if there is anything to read
-  QTextStream qin(stdin);
-  QString buffer;
-  if (qin.status() == QTextStream::Ok) {
-      if (buffer.length() > 1) {
+  // QTextStream qin(stdin);
+  QString buffer = m_inputStream->readLine();
+  if (m_inputStream->status() == QTextStream::Ok) {
+      if (buffer.length() > 0) {
           m_value = buffer.toInt();
           emit valueChanged(m_value);
         }
@@ -79,17 +78,20 @@ void GaugeControl::startSimulation()
       m_time++;
       calculate_value();
     });
+  qDebug() << "start timer from startSim";
   m_valueTimer->start();
 }
 
-void GaugeControl::setInputStream(std::istream &inputStream)
+void GaugeControl::setInputStream(QTextStream &inputStream)
 {
   m_inputStream = &inputStream;
+  emit inputStreamSet();
   m_valueTimer = new QTimer(this);
   m_valueTimer->setInterval(50);
   QObject::connect(m_valueTimer, &QTimer::timeout,
     [this]() {
       readStream();
     });
+  qDebug() << "start timer from setStream";
   m_valueTimer->start();
 }

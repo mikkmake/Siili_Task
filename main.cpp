@@ -54,6 +54,8 @@ int main(int argc, char *argv[])
     // Initiate GaugeControl
     GaugeControl speedControl(app.get());
     speedControl.maxValue(190);
+    QTextStream qin(stdin);
+    speedControl.setInputStream(qin);
     // Push received values to stdout
     QObject::connect(&speedControl, &GaugeControl::valueChanged,
       [](int value) {
