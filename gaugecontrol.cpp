@@ -61,8 +61,12 @@ void GaugeControl::readStream() {
   QString buffer = m_inputStream->readLine();
   if (m_inputStream->status() == QTextStream::Ok) {
       if (buffer.length() > 0) {
-          m_value = buffer.toInt();
-          emit valueChanged(m_value);
+          // Ignore values beyond limit
+          int newValue = buffer.toInt();
+          if (newValue < m_valueArray.size()) {
+            m_value = buffer.toInt();
+            emit valueChanged(m_value);
+            }
         }
     }
 }
