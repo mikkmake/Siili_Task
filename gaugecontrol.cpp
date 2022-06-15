@@ -1,7 +1,7 @@
 #include "gaugecontrol.h"
 
 GaugeControl::GaugeControl(QObject *parent)
-  : QObject{parent}, m_time(0), m_inputStream(NULL), m_value(0), m_maxValue(0)
+  : QObject{parent}, m_time(0), m_inputStream(NULL), m_value(0), m_maxValue(0), m_distance(0), m_averageValue(0)
 {
   // Connect log-writing to when parent terminating
   QObject::connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(writeLogFile()));
@@ -23,6 +23,10 @@ GaugeControl::~GaugeControl()
 
 void GaugeControl::writeLogFile() {
   qDebug() << "Log file writer called";
+  qDebug() << m_valueArray;
+  qDebug() << "distance: " << m_distance;
+  qDebug() << "avgValue: " << m_averageValue;
+  qDebug() << "runtime: " << m_time * 0.05;
 }
 
 auto GaugeControl::to_radians(double degrees) {
@@ -32,6 +36,11 @@ auto GaugeControl::to_radians(double degrees) {
 void GaugeControl::calculate_value() {
   auto t = to_radians(m_time);
   m_value = static_cast<int>(abs(sin(t)+sin(4*t)/4+2*sin(t/16))/3 * m_maxValue);
+  // Collect statistics
+  m_valueArray[m_value]++;
+  m_averageValue += m_value; // Running average
+  m_averageValue = m_averageValue / m_time;
+  m_distance += m_value / 3.6 * 0.05;
   emit valueChanged(m_value);
 }
 
@@ -52,14 +61,14 @@ int GaugeControl::value() const
   return m_value;
 }
 
-const QVariantList &GaugeControl::valueArray() const
+const QList<int> &GaugeControl::valueArray() const
 {
   return m_valueArray;
 }
 
 qreal GaugeControl::averageValue() const
 {
-  return m_averageSpeed;
+  return m_averageValue;
 }
 
 qreal GaugeControl::distance() const
@@ -70,6 +79,7 @@ qreal GaugeControl::distance() const
 void GaugeControl::maxValue(int newMaxValue)
 {
   m_maxValue = newMaxValue;
+  m_valueArray.resize(m_maxValue + 1);
 }
 
 void GaugeControl::startSimulation()

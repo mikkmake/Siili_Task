@@ -13,7 +13,7 @@ class GaugeControl : public QObject
   Q_OBJECT
   // Named value, not speed, because this is generic gauge control
   Q_PROPERTY(int value READ value NOTIFY valueChanged)
-  Q_PROPERTY(QVariantList valueArray READ valueArray NOTIFY valueArrayChanged)
+  Q_PROPERTY(QList<int> valueArray READ valueArray NOTIFY valueArrayChanged)
   Q_PROPERTY(qreal averageValue READ averageValue NOTIFY averageValueChanged)
   Q_PROPERTY(qreal distance READ distance NOTIFY distanceChanged)
   Q_PROPERTY(int maxValue WRITE maxValue)
@@ -24,7 +24,7 @@ public:
   ~GaugeControl();
 
   int value() const;
-  const QVariantList &valueArray() const;
+  const QList<int> &valueArray() const;
   qreal averageValue() const;
   qreal distance() const;
 
@@ -55,8 +55,8 @@ private:
   auto to_radians(double degrees);
 
   void readStream();
-  QVariantList m_valueArray;
-  qreal m_averageSpeed;
+  QList<int> m_valueArray;
+  qreal m_averageValue;
   qreal m_distance;
   int m_maxValue;
 };
