@@ -32,7 +32,7 @@ Item {
       }
       GaugeControl {
         id: speedControl
-        maxValue: 191
+        maxValue: 190
       }
     }
   }
@@ -46,6 +46,9 @@ Item {
       id: speedHistogram
       sourceArray: speedControl.valueArray
       anchors.centerIn: parent
+      xLabelText: "Speed (km/h)"
+      yLabelText: "Time (s)"
+      titleText: "Histogram: time spent at certain speeds"
     }
   }
 }

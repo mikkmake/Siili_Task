@@ -46,11 +46,12 @@ void GaugeControl::updateStatistics()
   emit distanceChanged();
 }
 
+// Model given in material
 void GaugeControl::calculate_value() {
   auto t = to_radians(m_time);
   // I thought "max_value" would be the maximum, but sometimes output larger that max
   // Actual limit is 3.25 / 3.0 = 1.083....
-  m_value = static_cast<int>(abs(sin(t)+sin(4*t)/4+2*sin(t/16))/3 * m_maxValue / 1.1);
+  m_value = static_cast<int>(abs(sin(t)+sin(4*t)/4+2*sin(t/16))/3 * m_maxValue / (3.25 / 3.0));
   emit valueChanged(m_value);
 }
 
@@ -89,7 +90,7 @@ qreal GaugeControl::distance() const
 void GaugeControl::maxValue(int newMaxValue)
 {
   m_maxValue = newMaxValue;
-  m_valueArray.resize(m_maxValue + 1);
+  m_valueArray.resize(m_maxValue + 1); // make room for 0
 }
 
 void GaugeControl::startSimulation()
