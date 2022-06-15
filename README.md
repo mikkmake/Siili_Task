@@ -1,5 +1,36 @@
 # Junior task for Siili_Auto 2022
 
+## Notes on each task
+
+# 1 [QML]: The gauge graphics
+
+# 2 [QML,C++]: Velocity Control
+
+Done as QML_NAMED_ELEMENT(GaugeControl). In principle should be able to control any gauge.
+
+# 3 [C++]: External sources
+
+GaugeControl input defaults to stdin -> allows piping and streaming a text file. E.g. *./speed_simulation | ./appSiili_Task* or *./appSiili_Task << speed_data.txt*. Implemented simple switch -s or --simulated to use internally simulated data. As a consequence you can have simulation and input-reading running simultaneously. Treating as a feature, not a bug: user is responsible.
+
+# 4 [C++]: Run in GUI or terminal
+
+Implemented simple switch -g or --graphical to start as QGuiApplication. Program defaults to QCoreApplication. 
+
+# 5 [C++]: Allow developer to specify source of speed
+
+Currently a developer may set any QTextStream as input. The goal now is to abstract out to QIODevice.
+
+# 6 [C++]: Collect statistics and store at the end of use
+
+Statistics collected each time gauge-value changes. Value was initially stored in an array where the index corresponds to a specific speed, and stores the cumulative time spent in that speed. Converted to QList in order to expose to QML as an array.
+
+Connected log file writing to SIGNAL(qApp::aboutToQuit). For a console application overrode SIGINT as Ctrl+C is the method to quit. Didn't implement file writing yet.
+
+
+# 7 [QML,C++]: Display live statistics
+
+Made a DIY histogram as I couldn't find examples, and as BarSeries lacks options like spacing. Every speed is represented by it's own column, as specified in the task pdf. 
+
 ## To-Do
 
 switch for input
