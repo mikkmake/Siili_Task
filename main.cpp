@@ -1,7 +1,11 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <csignal>
 #include "gaugecontrol.h"
 
+void sigIntHandler(int signal) {
+
+}
 // Determine whether to run graphically or not
 // Essentially from https://doc.qt.io/qt-6/qapplication.html
 QCoreApplication* createApplication(int &argc, char *argv[]) {
@@ -54,6 +58,12 @@ int main(int argc, char *argv[])
     QObject::connect(&speedControl, &GaugeControl::valueChanged,
       [](int value) {
         std::cout << value << std::endl;
+      });
+    // In terminal we exit by Ctrl-C, but still want to get quitting signal from QApplication
+    std::signal(SIGINT, [](int sigInt) {
+        qDebug() << "quitting by SIGINT";
+        std::signal(sigInt, SIG_DFL); // why doe?
+        qApp->quit();
       });
     return app->exec();
   }

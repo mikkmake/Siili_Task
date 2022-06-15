@@ -3,8 +3,8 @@
 GaugeControl::GaugeControl(QObject *parent)
   : QObject{parent}, m_time(0), m_value(0), m_inputStream(nullptr), m_maxValue(0)
 {
-  qDebug() << "Control constructing without stream";
-  qDebug() << qApp->arguments();
+  // Connect log-writing to when parent terminating
+  QObject::connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(writeLogFile()));
   for (QString arg : qApp->arguments()) {
     if (arg == "-s" || arg == "--simulated") {
       startSimulation();
@@ -35,10 +35,13 @@ void GaugeControl::calculate_value() {
 
 void GaugeControl::readStream() {
   // First check if there is anything to read
-  std::string buffer;
-  if (getline(*m_inputStream, buffer)) {
-      m_value = std::stoi(buffer);
-      emit valueChanged(m_value);
+  QTextStream qin(stdin);
+  QString buffer;
+  if (qin.status() == QTextStream::Ok) {
+      if (buffer.length() > 1) {
+          m_value = buffer.toInt();
+          emit valueChanged(m_value);
+        }
     }
 }
 
