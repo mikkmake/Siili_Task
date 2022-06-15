@@ -26,6 +26,7 @@ qt_add_qml_module(appSiili_Task
     QML_FILES
       main.qml
       SpeedGauge.qml
+      Histogram.qml
     RESOURCES
       assets/svgBackgroundCircle.png
       assets/Speed\ texture.png

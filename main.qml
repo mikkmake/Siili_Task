@@ -7,6 +7,7 @@ Window {
   visible: true
   title: qsTr("SpeedGauge Test")
   SpeedGauge {
-
+    anchors.top: parent.top
+    anchors.horizontalCenter: parent.horizontalCenter
   }
 }

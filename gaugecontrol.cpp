@@ -1,8 +1,10 @@
 #include "gaugecontrol.h"
 
 GaugeControl::GaugeControl(QObject *parent)
-  : QObject{parent}, m_time(0), m_inputStream(NULL), m_value(0), m_maxValue(0), m_distance(0), m_averageValue(0)
+  : QObject{parent}, m_time(0), m_inputStream(NULL), m_value(0), m_maxValue(0), m_distance(0.0), m_averageValue(0.0)
 {
+  // Connect statistics gathering to value change
+  QObject::connect(this, &GaugeControl::valueChanged, this, &GaugeControl::updateStatistics);
   // Connect log-writing to when parent terminating
   QObject::connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(writeLogFile()));
   for (QString arg : qApp->arguments()) {
@@ -33,14 +35,22 @@ auto GaugeControl::to_radians(double degrees) {
   return degrees/180.0 * M_PI;
 }
 
-void GaugeControl::calculate_value() {
-  auto t = to_radians(m_time);
-  m_value = static_cast<int>(abs(sin(t)+sin(4*t)/4+2*sin(t/16))/3 * m_maxValue);
-  // Collect statistics
-  m_valueArray[m_value]++;
+void GaugeControl::updateStatistics()
+{
+  m_valueArray[m_value] += 0.05;
   m_averageValue += m_value; // Running average
   m_averageValue = m_averageValue / m_time;
   m_distance += m_value / 3.6 * 0.05;
+  emit valueArrayChanged();
+  emit averageValueChanged();
+  emit distanceChanged();
+}
+
+void GaugeControl::calculate_value() {
+  auto t = to_radians(m_time);
+  // I thought "max_value" would be the maximum, but sometimes output larger that max
+  // Actual limit is 3.25 / 3.0 = 1.083....
+  m_value = static_cast<int>(abs(sin(t)+sin(4*t)/4+2*sin(t/16))/3 * m_maxValue / 1.1);
   emit valueChanged(m_value);
 }
 
@@ -61,7 +71,7 @@ int GaugeControl::value() const
   return m_value;
 }
 
-const QList<int> &GaugeControl::valueArray() const
+const QList<qreal> &GaugeControl::valueArray() const
 {
   return m_valueArray;
 }
@@ -102,6 +112,7 @@ void GaugeControl::setInputStream(QTextStream &inputStream)
   m_valueTimer->setInterval(50);
   QObject::connect(m_valueTimer, &QTimer::timeout,
     [this]() {
+      m_time++;
       readStream();
     });
   qDebug() << "start timer from setStream";
