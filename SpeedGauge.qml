@@ -69,7 +69,7 @@ Item {
     visible: true
     Histogram {
       id: speedHistogram
-      sourceArray: speedControl.valueArray
+      sourceGaugeControl: speedControl
       anchors.centerIn: parent
       xLabelText: "Speed (km/h)"
       yLabelText: "Time (s)"
