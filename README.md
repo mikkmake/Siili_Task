@@ -15,7 +15,7 @@ The provided simulation-model would produce values larger than "max_speed" as th
 
 ### 3 [C++]: External sources
 
-GaugeControl input defaults to stdin -> allows piping and streaming a text file. E.g. *"./speed_simulation | ./appSiili_Task"* or *"./appSiili_Task << speed_data.txt"*. Implemented simple switch -s or --simulated to use internally simulated data. As a consequence you can have simulation and input-reading running simultaneously. Treating as a feature, not a bug: user is responsible.
+GaugeControl input defaults to stdin -> allows piping and streaming a text file. E.g. *"./speed_simulation | ./appSiili_Task"* or *"./appSiili_Task << speed_data.txt"*. Implemented simple switch -s or --simulated to use internally simulated data. As a consequence you can have simulation and input-reading running simultaneously, or set multiple inputs. Treating as a feature, not a bug: user is responsible.
 
 ### 4 [C++]: Run in GUI or terminal
 
@@ -23,7 +23,7 @@ Implemented simple switch -g or --graphical to start as QGuiApplication. Program
 
 ### 5 [C++]: Allow developer to specify source of speed
 
-Currently a developer may set any QTextStream as input. The goal now is to abstract out to QIODevice.
+Currently a developer may set any QTextStream or QIODevice as input.
 
 ### 6 [C++]: Collect statistics and store at the end of use
 
@@ -35,18 +35,6 @@ Connected log file writing to SIGNAL(qApp::aboutToQuit). For a console applicati
 ### 7 [QML,C++]: Display live statistics
 
 Made a DIY histogram as I couldn't find examples, and as I was afraid BarSeries would not suffice (lacking the spacing option for example). Every speed is represented by it's own column, as specified in the task pdf.
-
-## To-Do
-
-switch for input
-
-switch for simulation
-
-implement collection of logging data
-
-write logging data on quit
-
-display logging data in QML
 
 ## Progress log
 
