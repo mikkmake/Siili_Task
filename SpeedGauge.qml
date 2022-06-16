@@ -57,6 +57,9 @@ Item {
       GaugeControl {
         id: speedControl
         maxValue: 190
+        Component.onCompleted: {
+          setStandardInput()
+        }
       }
     }
   }

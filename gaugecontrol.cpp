@@ -1,7 +1,7 @@
 #include "gaugecontrol.h"
 
 GaugeControl::GaugeControl(QObject *parent)
-  : QObject{parent}, m_time(0), m_inputStream(NULL), m_value(0), m_maxValue(0), m_distance(0.0), m_averageValue(0.0)
+  : QObject{parent}, m_time(0), m_inputDevice(nullptr), m_value(0), m_maxValue(0), m_distance(0.0), m_averageValue(0.0)
 {
   // Connect statistics gathering to value change
   QObject::connect(this, &GaugeControl::valueChanged, this, &GaugeControl::updateStatistics);
@@ -13,14 +13,14 @@ GaugeControl::GaugeControl(QObject *parent)
       return;
     }
   }
-  // Default to stdin
-  m_inputStream = new QTextStream(stdin);
-  setInputStream(*m_inputStream);
 }
 
 GaugeControl::~GaugeControl()
 {
   qDebug() << "Destructor called.";
+  // Close input if set
+  if (m_inputDevice != nullptr)
+      m_inputDevice->close();
 }
 
 void GaugeControl::writeLogFile() {
@@ -71,6 +71,21 @@ void GaugeControl::readStream() {
     }
 }
 
+void GaugeControl::readDevice()
+{
+  qDebug() << "bytes: " << m_inputDevice->bytesAvailable();
+  qDebug() << "can read: " << m_inputDevice->canReadLine();
+  if (m_inputDevice->bytesAvailable() > 0 && m_inputDevice->canReadLine()) {
+
+  qDebug() << "readdevice";
+      QString buffer = m_inputDevice->readLine();
+      if (buffer.length() > 0) {
+          m_value = buffer.toInt();
+          emit valueChanged(m_value);
+        }
+    }
+}
+
 int GaugeControl::value() const
 {
   return m_value;
@@ -112,7 +127,12 @@ void GaugeControl::startSimulation()
 
 void GaugeControl::setInputStream(QTextStream &inputStream)
 {
-  m_inputStream = &inputStream;
+  if (inputStream.status() == QTextStream::Ok) {
+    m_inputStream = &inputStream;
+  } else {
+      qDebug() << "Stream not OK :(";
+      return;
+    }
   m_valueTimer = new QTimer(this);
   m_valueTimer->setInterval(50);
   QObject::connect(m_valueTimer, &QTimer::timeout,
@@ -122,4 +142,25 @@ void GaugeControl::setInputStream(QTextStream &inputStream)
     });
   qDebug() << "start timer from setStream";
   m_valueTimer->start();
+}
+
+void GaugeControl::setInputDevice(QIODevice &device)
+{
+  if (device.isOpen() || device.open(QIODeviceBase::ReadOnly)) {
+      m_inputDevice = &device;
+      qDebug() << "set input device";
+    }
+  else {
+    qDebug() << "failed to set input device";
+    return;
+    }
+  // Set inputstream based on device (tried to use readLine() from device, couldn't make it work quickly)
+  QTextStream *stream = new QTextStream(&device);
+  setInputStream(*stream);
+}
+
+void GaugeControl::setStandardInput()
+{
+  QTextStream *stream = new QTextStream(stdin);
+  setInputStream(*stream);
 }

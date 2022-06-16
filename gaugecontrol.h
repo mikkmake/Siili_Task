@@ -18,6 +18,7 @@ class GaugeControl : public QObject
   Q_PROPERTY(qreal distance READ distance NOTIFY distanceChanged)
   Q_PROPERTY(int maxValue WRITE maxValue)
   QML_NAMED_ELEMENT(GaugeControl)
+
 public:
   explicit GaugeControl(QObject *parent = nullptr);
 
@@ -32,6 +33,9 @@ public:
   void startSimulation();
 
   void setInputStream(QTextStream &inputStream);
+  void setInputDevice(QIODevice &device);
+  // Need to set input from QML too. Just can't instantiate it there I think
+  Q_INVOKABLE void setStandardInput();
 
 signals:
 
@@ -47,6 +51,7 @@ public slots:
 private:
   int m_value;
   QTextStream *m_inputStream;
+  QIODevice *m_inputDevice;
   std::size_t m_time;
   QTimer *m_valueTimer;
 
@@ -57,6 +62,7 @@ private:
   void updateStatistics();
 
   void readStream();
+  void readDevice();
   QList<qreal> m_valueArray;
   qreal m_averageValue;
   qreal m_distance;
