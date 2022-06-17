@@ -110,23 +110,12 @@ Rectangle {
       }
     }
   }
-
-  // Bind sourceArray to columns
-  // onSourceArrayChanged: {
-    // histogram.maxValue = Math.max(...sourceArray);
-    // // Begin from one as we don't want to display time spent at zero
-    // for (var i = 1; i < sourceArray.length; i++) {
-      // // don't divide by zero
-      // if (sourceArray[i] !== 0 && histogram.maxValue !== 0) {
-        // barRepeater.itemAt(i).height = ((sourceArray[i] / histogram.maxValue) * histogramBox.height) - histogramBox.border.width * 2;
-      // }
-    // }
-  // }
-
   // Show changes in value
   onSourceArrayChanged: {
     if (sourceGaugeControl.valueArray[value] > histogram.maxValue)
        histogram.maxValue = sourceGaugeControl.valueArray[value];
-    barRepeater.itemAt(value).height = ((sourceGaugeControl.valueArray[value] / histogram.maxValue) * histogramBox.height);
+    if (barRepeater.itemAt(value) !== null) { // Just check we have generated the item to modify
+      barRepeater.itemAt(value).height = ((sourceGaugeControl.valueArray[value] / histogram.maxValue) * histogramBox.height);
+    }
   }
 }

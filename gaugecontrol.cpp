@@ -24,11 +24,23 @@ GaugeControl::~GaugeControl()
 }
 
 void GaugeControl::writeLogFile() {
-  qDebug() << "Log file writer called";
-  qDebug() << m_valueArray;
-  qDebug() << "distance: " << m_distance;
-  qDebug() << "avgValue: " << m_averageValue;
-  qDebug() << "runtime: " << m_time * 0.05;
+  QJsonObject log;
+  QDateTime now(QDateTime::currentDateTime());
+  log.insert("quitTime", now.toSecsSinceEpoch());
+  log.insert("runTime", m_time * 0.05);
+  log.insert("distance", m_distance);
+  log.insert("averageValue", m_averageValue);
+  QJsonArray jsonArray;
+  for (qreal qr : m_valueArray) {
+      jsonArray.push_back(qr);
+    }
+  log.insert("valueArray", jsonArray);
+  QJsonDocument logDoc;
+  logDoc.setObject(log);
+  QFile file("log" + QString::number(now.toSecsSinceEpoch()));
+  file.open(QIODevice::WriteOnly);
+  file.write(logDoc.toJson());
+  file.close();
 }
 
 auto GaugeControl::to_radians(double degrees) {
