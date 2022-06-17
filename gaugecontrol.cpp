@@ -17,7 +17,6 @@ GaugeControl::GaugeControl(QObject *parent)
 
 GaugeControl::~GaugeControl()
 {
-  qDebug() << "Destructor called.";
   // Close input if set
   if (m_inputDevice != nullptr)
       m_inputDevice->close();
@@ -69,7 +68,6 @@ void GaugeControl::calculate_value() {
 }
 
 void GaugeControl::readStream() {
-  // First check if there is anything to read
   if (m_inputStream->status() == QTextStream::Ok) {
       QString buffer = m_inputStream->readLine();
       if (buffer.length() > 0) {

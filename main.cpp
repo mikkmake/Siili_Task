@@ -14,6 +14,11 @@ QCoreApplication* createApplication(int &argc, char *argv[]) {
   return new QCoreApplication(argc, argv);
 }
 
+static void catchSigInt(int sigInt) {
+  qInfo() << "readLine() blocks quit(). Press enter to quit.";
+  QCoreApplication::quit();
+}
+
 int main(int argc, char *argv[])
 {
   QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
@@ -46,10 +51,12 @@ int main(int argc, char *argv[])
         std::cout << value << std::endl;
       });
     // In terminal we exit by Ctrl-C, but still want to get quitting signal from QApplication
-    std::signal(SIGINT, [](int sigInt) {
-        std::signal(sigInt, SIG_DFL); // why doe?
-        qApp->quit();
-      });
+    // std::signal(SIGINT, [](int sigInt) {
+        // qDebug() << "caight sigint";
+        // std::signal(sigInt, SIG_DFL); // why doe?
+        // qApp->quit();
+      // });
+    std::signal(SIGINT, catchSigInt);
     return app->exec();
   }
 }

@@ -1,5 +1,7 @@
 # Junior task for Siili_Auto 2022
 
+*Beware thee who enterth and lieth thine eyes upon there w'rks.*
+
 <img src="screenshots/Screenshot1506.png"></img>
 
 ## Notes on each task
@@ -23,7 +25,7 @@ Implemented simple switch -g or --graphical to start as QGuiApplication. Program
 
 ### 5 [C++]: Allow developer to specify source of speed
 
-Currently a developer may set any QTextStream or QIODevice as input.
+Currently a developer may in principle set any QTextStream or a QTextStream supporting QIODevice as input.
 
 ### 6 [C++]: Collect statistics and store at the end of use
 
