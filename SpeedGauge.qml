@@ -1,4 +1,5 @@
-import QtQuick 2.0
+import QtQuick
+import QtQuick.Controls
 import Qt.labs.animation
 import GaugeControl
 
@@ -60,6 +61,16 @@ Item {
         Component.onCompleted: {
           setStandardInput()
         }
+      }
+    }
+    Button {
+      text: "Toggle Histogram"
+      anchors {
+        horizontalCenter: parent.horizontalCenter
+        bottom: parent.bottom
+      }
+      onClicked: {
+        statisticsWindow.visible = !statisticsWindow.visible
       }
     }
   }

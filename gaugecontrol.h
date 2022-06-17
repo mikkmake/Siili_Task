@@ -11,12 +11,11 @@
 class GaugeControl : public QObject
 {
   Q_OBJECT
-  // Named value, not speed, because this is generic gauge control
   Q_PROPERTY(int value READ value NOTIFY valueChanged)
   Q_PROPERTY(QList<qreal> valueArray READ valueArray NOTIFY valueArrayChanged)
   Q_PROPERTY(qreal averageValue READ averageValue NOTIFY averageValueChanged)
   Q_PROPERTY(qreal distance READ distance NOTIFY distanceChanged)
-  Q_PROPERTY(int maxValue WRITE maxValue)
+  Q_PROPERTY(int maxValue WRITE setMaxValue)
   QML_NAMED_ELEMENT(GaugeControl)
 
 public:
@@ -24,12 +23,14 @@ public:
 
   ~GaugeControl();
 
+  // GETS
   int value() const;
   const QList<qreal> &valueArray() const;
   qreal averageValue() const;
   qreal distance() const;
 
-  void maxValue(int newMaxValue);
+  void setMaxValue(int newMaxValue);
+
   void startSimulation();
 
   void setInputStream(QTextStream &inputStream);

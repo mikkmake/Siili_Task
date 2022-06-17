@@ -1,7 +1,7 @@
 #include "gaugecontrol.h"
 
 GaugeControl::GaugeControl(QObject *parent)
-  : QObject{parent}, m_time(0), m_inputDevice(nullptr), m_value(0), m_maxValue(0), m_distance(0.0), m_averageValue(0.0)
+  : QObject{parent}, m_time(0), m_inputStream(nullptr), m_inputDevice(nullptr), m_value(0), m_maxValue(0), m_distance(0.0), m_averageValue(0.0)
 {
   // Connect statistics gathering to value change
   QObject::connect(this, &GaugeControl::valueChanged, this, &GaugeControl::updateStatistics);
@@ -23,6 +23,7 @@ GaugeControl::~GaugeControl()
       m_inputDevice->close();
 }
 
+// Write a json log of run statistics
 void GaugeControl::writeLogFile() {
   QJsonObject log;
   QDateTime now(QDateTime::currentDateTime());
@@ -58,42 +59,26 @@ void GaugeControl::updateStatistics()
   emit distanceChanged();
 }
 
-// Model given in material
+// Simulationmodel given in material
 void GaugeControl::calculate_value() {
   auto t = to_radians(m_time);
   // I thought "max_value" would be the maximum, but sometimes output larger that max
   // Actual limit is 3.25 / 3.0 = 1.083....
-  m_value = static_cast<int>(std::floor((abs(sin(t)+sin(4*t)/4+2*sin(t/16))/3 * m_maxValue / (3.25 / 3.0)) + 0.5));
+  m_value = static_cast<int>((abs(sin(t)+sin(4*t)/4+2*sin(t/16))/3 / (3.25 / 3.0)) * m_maxValue);
   emit valueChanged(m_value);
 }
 
 void GaugeControl::readStream() {
   // First check if there is anything to read
-  // QTextStream qin(stdin);
-  QString buffer = m_inputStream->readLine();
   if (m_inputStream->status() == QTextStream::Ok) {
+      QString buffer = m_inputStream->readLine();
       if (buffer.length() > 0) {
           // Ignore values beyond limit
           int newValue = buffer.toInt();
           if (newValue < m_valueArray.size()) {
-            m_value = buffer.toInt();
-            emit valueChanged(m_value);
+              m_value = buffer.toInt();
+              emit valueChanged(m_value);
             }
-        }
-    }
-}
-
-void GaugeControl::readDevice()
-{
-  qDebug() << "bytes: " << m_inputDevice->bytesAvailable();
-  qDebug() << "can read: " << m_inputDevice->canReadLine();
-  if (m_inputDevice->bytesAvailable() > 0 && m_inputDevice->canReadLine()) {
-
-  qDebug() << "readdevice";
-      QString buffer = m_inputDevice->readLine();
-      if (buffer.length() > 0) {
-          m_value = buffer.toInt();
-          emit valueChanged(m_value);
         }
     }
 }
@@ -118,17 +103,17 @@ qreal GaugeControl::distance() const
   return m_distance;
 }
 
-void GaugeControl::maxValue(int newMaxValue)
+void GaugeControl::setMaxValue(int newMaxValue)
 {
   m_maxValue = newMaxValue;
   m_valueArray.resize(m_maxValue + 1); // make room for 0
 }
 
+// Simulate values from within
 void GaugeControl::startSimulation()
 {
   m_valueTimer = new QTimer(this);
   m_valueTimer->setInterval(50);
-  // If no input stream given, generate value ourselves
   QObject::connect(m_valueTimer, &QTimer::timeout,[this]() {
       m_time++;
       calculate_value();
@@ -142,7 +127,6 @@ void GaugeControl::setInputStream(QTextStream &inputStream)
   if (inputStream.status() == QTextStream::Ok) {
     m_inputStream = &inputStream;
   } else {
-      qDebug() << "Stream not OK :(";
       return;
     }
   m_valueTimer = new QTimer(this);
@@ -152,7 +136,6 @@ void GaugeControl::setInputStream(QTextStream &inputStream)
       m_time++;
       readStream();
     });
-  qDebug() << "start timer from setStream";
   m_valueTimer->start();
 }
 
@@ -160,10 +143,8 @@ void GaugeControl::setInputDevice(QIODevice &device)
 {
   if (device.isOpen() || device.open(QIODeviceBase::ReadOnly)) {
       m_inputDevice = &device;
-      qDebug() << "set input device";
     }
   else {
-    qDebug() << "failed to set input device";
     return;
     }
   // Set inputstream based on device (tried to use readLine() from device, couldn't make it work quickly)
